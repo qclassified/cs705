@@ -61,7 +61,7 @@ class Block:
 
     self.index = prev_block.index + 1       # this block index = previous index + 1
     self.prev_hash = prev_block.hash        # hash of previous block
-    self.merkle_tree = []
+    self.merkle_tree = []                   # store entire merkle tree for verifiability
     self.merkle_root = self.get_merkle_root([t.hash for t in transactions])
 
   @property
@@ -69,7 +69,7 @@ class Block:
     return sha40(self.merkle_root + self.prev_hash + str(self.nonce) + self.time)
 
   def get_merkle_root(self, hash_list):     # merkle root of transaction hashes
-    self.merkle_tree += hash_list
+    self.merkle_tree += hash_list           # update merkle tree of block
     if len(hash_list) == 1: return hash_list[0]
     new_hash_list = []
     for i in range(0, len(hash_list)-1, 2):
@@ -95,7 +95,7 @@ Hash: {}, Previous hash: {}, Merkle root: {},\n{} Transactions: {}'''\
 ### =====================================================================
   
 transactions_queue = []               # global queue for requested transactions
-miners_cpu = []                       # more cpu means more occurence in this list 
+miners_cpu = []                       # more cpu means more occurrence in this list 
 blockchain = []                       # global list for entire blockchain
 Block.difficulty = 0x000FFFFFFF       # mining (PoW) difficulty, smaller = more work
 
