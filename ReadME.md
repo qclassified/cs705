@@ -1,4 +1,14 @@
-# Part 2: Develop and write a report: 25pt (5+1+2+4+2+1+5+2+3)
+
+
+# CS 705 Cryptography and Blockchain
+#### Spring 2020
+#### Assignment 1
+#### Department of Computer Science and Engineering
+#### University of Nevada, Reno
+#### Student Name: Farhan Sadique
+
+
+### Part 2: Develop and write a report: 25pt (5+1+2+4+2+1+5+2+3)
 
 Please review the python source codes from lecture 2 (Building smallest blockchain.txt) and lecture 3 (PoW-2.txt). 
 The first application shows a chain of blocks, but it does not provide any proof of work. 
