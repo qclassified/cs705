@@ -25,12 +25,15 @@ class User:
     return self.name
 
 
-class Miner(User):
+class Miner(User):                # Miners can also be users (send coin)
   def __init__(self, name, cpu):
     assert type(cpu) == int, "Miner cpu power must be integer"
     self.cpu = cpu                # cpu power of miner (integer > 1)
     super().__init__(name)
 
+  def __str__(self):
+    return '{} (CPU Power = {})'.format(self.name, self.cpu)
+  
 
 class Transaction: 
   def __init__(self, _from, to, val):
@@ -39,29 +42,34 @@ class Transaction:
     self.val = val                # amount of coins sent
     self.hash = sha40(str(self))  # transaction hash needed for merkle root
 
-  def __str__(self):              # 'Sender -> Recipient: amount'
+  def __str__(self):              # print format = 'Sender -> Recipient: amount'
     return '{} -> {}: {:.2f}'.format(self._from.name, self.to.name, self.val)
 
 
-class Block: # genesis block parameters are predefined
-  difficulty = 0x00FFFFFFFF                 # mining difficulty
-  miner, index, prev_hash, merkle_root, nonce = 'genesis', 0, '0000000000', 'aeebad4a79', 0
+class Block:  
+  difficulty = 0x00FFFFFFFF                 # default mining difficulty
   
   def __init__(self, transactions=['genesis'], prev_block=None):
     self.time = str(dt.now())
     self.transactions = transactions
+    self.nonce = 0
     
-    if transactions == ['genesis']: return  # create genesis block
+    if transactions == ['genesis']:         # create genesis block
+      self.miner, self.index = 'genesis', 0 # genesis block parameters
+      self.prev_hash, self.merkle_root = '0000000000', 'aeebad4a79'
+      return 
 
-    self.index = prev_block.index + 1
-    self.prev_hash = prev_block.hash
+    self.index = prev_block.index + 1       # this block index = previous index + 1
+    self.prev_hash = prev_block.hash        # hash of previous block
+    self.merkle_tree = []
     self.merkle_root = self.get_merkle_root([t.hash for t in transactions])
 
   @property
-  def hash(self):
+  def hash(self):                           # gets hash of this block
     return sha40(self.merkle_root + self.prev_hash + str(self.nonce) + self.time)
 
   def get_merkle_root(self, hash_list):     # merkle root of transaction hashes
+    self.merkle_tree += hash_list
     if len(hash_list) == 1: return hash_list[0]
     new_hash_list = []
     for i in range(0, len(hash_list)-1, 2):
@@ -70,15 +78,16 @@ class Block: # genesis block parameters are predefined
         new_hash_list.append(sha40(hash_list[-1] + hash_list[-1]))
     return self.get_merkle_root(new_hash_list)
 
-  def mine(self, miner):
+  def mine(self, miner):                    # mine block to `show PoW = get Nonce'
     while int(self.hash, 16) >= self.difficulty: self.nonce += 1
-    self.miner = miner
+    self.miner = miner                      # miner who mined this block
 
-  def __str__(self):
+  def __str__(self):                        # print block info in a nice manner
     return '''Block # {}, Time: {}, Nonce: {}, Miner: {}
 Hash: {}, Previous hash: {}, Merkle root: {},\n{} Transactions: {}'''\
-.format(self.index, self.time, self.nonce, str(self.miner), self.hash, self.prev_hash,
-self.merkle_root, len(self.transactions), [str(t) for t in self.transactions])
+      .format(self.index, self.time, self.nonce, str(self.miner),
+          self.hash, self.prev_hash, self.merkle_root,
+          len(self.transactions), [str(t) for t in self.transactions])
       
 
 ### =====================================================================
@@ -88,11 +97,11 @@ self.merkle_root, len(self.transactions), [str(t) for t in self.transactions])
 transactions_queue = []               # global queue for requested transactions
 miners_cpu = []                       # more cpu means more occurence in this list 
 blockchain = []                       # global list for entire blockchain
-
+Block.difficulty = 0x000FFFFFFF       # mining (PoW) difficulty, smaller = more work
 
 ### =============== Create Users ===============
 
-Alice = User('Alice')
+Alice = User('Alice')                 
 Bob = User('Bob')
 Charlie = User('Charlie')
 Eve = User('Eve')
@@ -104,7 +113,7 @@ Users = [Alice, Bob, Charlie, Eve]
 
 Oscar = Miner('Oscar', 1)             # Oscar has cpu power = 1  
 Trudy = Miner('Trudy', 2)             # Trudy has cpu power = 2
-Victor = Miner('Victor', 3)
+Victor = Miner('Victor', 3)           # ... and so on
 Wendy = Miner('Wendy', 4)
 
 miners = [Oscar, Trudy, Victor, Wendy]
@@ -117,7 +126,7 @@ for m in miners: miners_cpu += [m]*m.cpu
 
 ### =============== Generate Random Transactions and Print =============
 
-num_transactions = random.randint(3, 15)      # Random number of transactions 3 to 15
+num_transactions = random.randint(15, 15)      # Random number of transactions 1 to 30
 
 for i in range(num_transactions):
   sender, receiver = random.sample(Users, 2)  # Random sender, receiver
@@ -126,8 +135,10 @@ for i in range(num_transactions):
   transactions_queue.insert(0, t)
 
 
-print("{} Transactions Requested: (Sender -> Receiver: Amount)".format(num_transactions))
-for t in transactions_queue: print(t)
+print("\n{} Transactions Requested:\n(Sender -> Receiver: Amount)"
+      .format(num_transactions))
+for t in transactions_queue:
+  print(t)
 
 
 ### =============== Create Genesis Block ===============
