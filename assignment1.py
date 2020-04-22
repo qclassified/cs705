@@ -27,7 +27,8 @@ class User:
 
 class Miner(User):
   def __init__(self, name, cpu):
-    self.cpu = cpu
+    assert type(cpu) == int, "Miner cpu power must be integer"
+    self.cpu = cpu                # cpu power of miner (integer > 1)
     super().__init__(name)
 
 
