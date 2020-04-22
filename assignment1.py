@@ -12,8 +12,10 @@ import random
 from hashlib import sha256
 from datetime import datetime as dt
 
+
 def sha40(data):  # sha40 (40 bits) is sufficient for this example
   return sha256(data.encode('utf-8')).hexdigest()[:10]
+
 
 class User:  
   def __init__(self, name):
@@ -22,10 +24,12 @@ class User:
   def __str__(self):
     return self.name
 
+
 class Miner(User):
   def __init__(self, name, cpu):
     self.cpu = cpu
     super().__init__(name)
+
 
 class Transaction: 
   def __init__(self, _from, to, val):
@@ -36,6 +40,7 @@ class Transaction:
 
   def __str__(self):              # 'Sender -> Recipient: amount'
     return '{} -> {}: {:.2f}'.format(self._from.name, self.to.name, self.val)
+
 
 class Block: # genesis block parameters are predefined
   difficulty = 0x00FFFFFFFF                 # mining difficulty
@@ -83,13 +88,16 @@ transactions_queue = []               # global queue for requested transactions
 miners_cpu = []                       # more cpu means more occurence in this list 
 blockchain = []                       # global list for entire blockchain
 
+
 ### =============== Create Users ===============
+
 Alice = User('Alice')
 Bob = User('Bob')
 Charlie = User('Charlie')
 Eve = User('Eve')
 
 Users = [Alice, Bob, Charlie, Eve]
+
 
 ### =============== Create Miners ===============
 
@@ -100,9 +108,11 @@ Wendy = Miner('Wendy', 4)
 
 miners = [Oscar, Trudy, Victor, Wendy]
 
+
 ### =============== Modify miners by CPU Power ===============
 
 for m in miners: miners_cpu += [m]*m.cpu
+
 
 ### =============== Generate Random Transactions and Print =============
 
@@ -118,10 +128,12 @@ for i in range(num_transactions):
 print("{} Transactions Requested: (Sender -> Receiver: Amount)".format(num_transactions))
 for t in transactions_queue: print(t)
 
+
 ### =============== Create Genesis Block ===============
 
 genesis = Block()
 blockchain.append(genesis)                    # Include genesis block in blockchain
+
 
 ### =============== Mine Transactions into Blocks ===============
 
@@ -137,6 +149,7 @@ while transactions_queue:
   block = Block(t, blockchain[-1])            # create block with transactions
   block.mine(miner)                           # mine block to show PoW
   blockchain.append(block)                    # include block in blockchain
+
     
 ### =============== Print Entire Blockchain ===============
   
