@@ -126,7 +126,7 @@ for m in miners: miners_cpu += [m]*m.cpu
 
 ### =============== Generate Random Transactions and Print =============
 
-num_transactions = random.randint(15, 15)      # Random number of transactions 1 to 30
+num_transactions = random.randint(1, 15)      # Random number of transactions 1 to 15
 
 for i in range(num_transactions):
   sender, receiver = random.sample(Users, 2)  # Random sender, receiver
@@ -137,7 +137,7 @@ for i in range(num_transactions):
 
 print("\n{} Transactions Requested:\n(Sender -> Receiver: Amount)"
       .format(num_transactions))
-for t in transactions_queue:
+for t in transactions_queue[::-1]:
   print(t)
 
 
